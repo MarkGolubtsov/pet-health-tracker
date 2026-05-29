@@ -27,6 +27,56 @@ docker compose up --build
 2. Backend healthcheck:
    `http://localhost:${PET_HEALTH_TRACKER_BACKEND_PORT}/health`.
 
+## Команды Compose
+
+Подготовить локальный `.env`:
+
+```bash
+cp .env.example .env
+```
+
+Запустить все сервисы с пересборкой образов:
+
+```bash
+docker compose up --build
+```
+
+Запустить все сервисы в фоне:
+
+```bash
+docker compose up --build -d
+```
+
+Запустить только backend:
+
+```bash
+docker compose up --build pet-health-tracker-backend
+```
+
+Запустить frontend вместе с его зависимостями:
+
+```bash
+docker compose up --build pet-health-tracker-frontend
+```
+
+Показать состояние сервисов:
+
+```bash
+docker compose ps
+```
+
+Показать логи всех сервисов:
+
+```bash
+docker compose logs -f
+```
+
+Остановить и удалить контейнеры проекта:
+
+```bash
+docker compose down
+```
+
 ## Переменные
 
 Compose использует переменные с префиксом `PET_HEALTH_TRACKER_`.
