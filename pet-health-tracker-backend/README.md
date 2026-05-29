@@ -1,4 +1,4 @@
-# Cat Health Tracker Backend
+# Pet Health Tracker Backend
 
 Backend-модуль содержит серверную границу портала.
 Текущий модуль является контейнерным placeholder до выбора API-стека.
@@ -13,8 +13,8 @@ Backend-модуль содержит серверную границу порт
 ## Локальный запуск
 
 ```bash
-docker build -t cat-health-tracker-backend .
-docker run --rm -p 8080:8080 cat-health-tracker-backend
+docker build -t pet-health-tracker-backend .
+docker run --rm -p 8080:8080 pet-health-tracker-backend
 ```
 
 После запуска healthcheck доступен по адресу `http://localhost:8080/health`.

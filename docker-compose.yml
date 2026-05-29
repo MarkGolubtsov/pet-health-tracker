@@ -1,11 +1,11 @@
-name: cat-health-tracker
+name: pet-health-tracker
 
 services:
-  cat-health-tracker-backend:
+  pet-health-tracker-backend:
     build:
-      context: ./cat-health-tracker-backend
+      context: ./pet-health-tracker-backend
     ports:
-      - "${CAT_HEALTH_TRACKER_HOST_BIND_ADDRESS:-127.0.0.1}:${CAT_HEALTH_TRACKER_BACKEND_PORT:-8080}:8080"
+      - "${PET_HEALTH_TRACKER_HOST_BIND_ADDRESS:-127.0.0.1}:${PET_HEALTH_TRACKER_BACKEND_PORT:-8080}:8080"
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/health || exit 1"]
       interval: 10s
@@ -13,15 +13,15 @@ services:
       retries: 5
       start_period: 5s
     networks:
-      - cat-health-tracker-app
+      - pet-health-tracker-app
 
-  cat-health-tracker-frontend:
+  pet-health-tracker-frontend:
     build:
-      context: ./cat-health-tracker-frontend
+      context: ./pet-health-tracker-frontend
     ports:
-      - "${CAT_HEALTH_TRACKER_HOST_BIND_ADDRESS:-127.0.0.1}:${CAT_HEALTH_TRACKER_FRONTEND_PORT:-3000}:80"
+      - "${PET_HEALTH_TRACKER_HOST_BIND_ADDRESS:-127.0.0.1}:${PET_HEALTH_TRACKER_FRONTEND_PORT:-3000}:80"
     depends_on:
-      cat-health-tracker-backend:
+      pet-health-tracker-backend:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/health || exit 1"]
@@ -30,8 +30,8 @@ services:
       retries: 5
       start_period: 5s
     networks:
-      - cat-health-tracker-app
+      - pet-health-tracker-app
 
 networks:
-  cat-health-tracker-app:
+  pet-health-tracker-app:
     driver: bridge

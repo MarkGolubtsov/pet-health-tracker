@@ -13,20 +13,20 @@ const sendJson = (response, statusCode, payload) => {
 const server = http.createServer((request, response) => {
   if (request.url === "/health") {
     sendJson(response, 200, {
-      service: "cat-health-tracker-backend",
+      service: "pet-health-tracker-backend",
       status: "ok",
     });
     return;
   }
 
   sendJson(response, 200, {
-    service: "cat-health-tracker-backend",
+    service: "pet-health-tracker-backend",
     message: "Backend module placeholder.",
   });
 });
 
 server.listen(port, host, () => {
-  console.log(`cat-health-tracker-backend listening on ${host}:${port}`);
+  console.log(`pet-health-tracker-backend listening on ${host}:${port}`);
 });
 
 const shutdown = () => {

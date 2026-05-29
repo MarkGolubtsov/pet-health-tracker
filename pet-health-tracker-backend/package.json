@@ -1,5 +1,5 @@
 {
-  "name": "cat-health-tracker-backend",
+  "name": "pet-health-tracker-backend",
   "private": true,
   "type": "module",
   "scripts": {

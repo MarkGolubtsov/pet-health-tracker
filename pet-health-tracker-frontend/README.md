@@ -1,4 +1,4 @@
-# Cat Health Tracker Frontend
+# Pet Health Tracker Frontend
 
 Frontend-модуль содержит пользовательский интерфейс портала.
 Текущий модуль является контейнерным placeholder до выбора UI-стека.
@@ -12,8 +12,8 @@ Frontend-модуль содержит пользовательский инте
 ## Локальный запуск
 
 ```bash
-docker build -t cat-health-tracker-frontend .
-docker run --rm -p 3000:80 cat-health-tracker-frontend
+docker build -t pet-health-tracker-frontend .
+docker run --rm -p 3000:80 pet-health-tracker-frontend
 ```
 
 После запуска модуль доступен по адресу `http://localhost:3000`.
