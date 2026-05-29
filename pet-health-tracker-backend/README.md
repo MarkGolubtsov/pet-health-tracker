@@ -14,7 +14,8 @@ Backend-модуль содержит серверную границу порт
 
 ```bash
 docker build -t pet-health-tracker-backend .
-docker run --rm -p 8080:8080 pet-health-tracker-backend
+docker run --rm --env-file ../version.txt -p 8080:8080 pet-health-tracker-backend
 ```
 
 После запуска healthcheck доступен по адресу `http://localhost:8080/health`.
+Версия модуля доступна по адресу `http://localhost:8080/version`.

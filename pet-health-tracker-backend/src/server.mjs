@@ -2,6 +2,7 @@ import http from "node:http";
 
 const host = "0.0.0.0";
 const port = 8080;
+const projectVersion = process.env.version ?? "unknown";
 
 const sendJson = (response, statusCode, payload) => {
   response.writeHead(statusCode, {
@@ -15,6 +16,15 @@ const server = http.createServer((request, response) => {
     sendJson(response, 200, {
       service: "pet-health-tracker-backend",
       status: "ok",
+      version: projectVersion,
+    });
+    return;
+  }
+
+  if (request.url === "/version") {
+    sendJson(response, 200, {
+      service: "pet-health-tracker-backend",
+      version: projectVersion,
     });
     return;
   }
@@ -22,6 +32,7 @@ const server = http.createServer((request, response) => {
   sendJson(response, 200, {
     service: "pet-health-tracker-backend",
     message: "Backend module placeholder.",
+    version: projectVersion,
   });
 });
 

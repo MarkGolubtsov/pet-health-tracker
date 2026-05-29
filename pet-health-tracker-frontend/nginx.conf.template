@@ -11,6 +11,12 @@ server {
     return 200 "ok\n";
   }
 
+  location = /version {
+    access_log off;
+    default_type text/plain;
+    return 200 "${version}\n";
+  }
+
   location / {
     try_files $uri $uri/ /index.html;
   }
