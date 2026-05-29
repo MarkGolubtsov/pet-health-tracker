@@ -2,10 +2,13 @@ name: pet-health-tracker
 
 services:
   pet-health-tracker-backend:
+    image: pet-health-tracker-backend:${PET_HEALTH_TRACKER_VERSION}
     build:
       context: ./pet-health-tracker-backend
-    env_file:
-      - ./version.txt
+      args:
+        PET_HEALTH_TRACKER_VERSION: ${PET_HEALTH_TRACKER_VERSION}
+    environment:
+      PET_HEALTH_TRACKER_VERSION: ${PET_HEALTH_TRACKER_VERSION}
     ports:
       - "${PET_HEALTH_TRACKER_HOST_BIND_ADDRESS:-127.0.0.1}:${PET_HEALTH_TRACKER_BACKEND_PORT:-8080}:8080"
     healthcheck:
@@ -18,10 +21,13 @@ services:
       - pet-health-tracker-app
 
   pet-health-tracker-frontend:
+    image: pet-health-tracker-frontend:${PET_HEALTH_TRACKER_VERSION}
     build:
       context: ./pet-health-tracker-frontend
-    env_file:
-      - ./version.txt
+      args:
+        PET_HEALTH_TRACKER_VERSION: ${PET_HEALTH_TRACKER_VERSION}
+    environment:
+      PET_HEALTH_TRACKER_VERSION: ${PET_HEALTH_TRACKER_VERSION}
     ports:
       - "${PET_HEALTH_TRACKER_HOST_BIND_ADDRESS:-127.0.0.1}:${PET_HEALTH_TRACKER_FRONTEND_PORT:-3000}:80"
     depends_on:

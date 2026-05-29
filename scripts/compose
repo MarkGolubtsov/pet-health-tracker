@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+set -eu
+
+cd "$(dirname "$0")/.."
+
+. ./version.txt
+export PET_HEALTH_TRACKER_VERSION="$version"
+
+exec docker compose "$@"

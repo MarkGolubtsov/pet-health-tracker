@@ -12,8 +12,14 @@ Frontend-модуль содержит пользовательский инте
 ## Локальный запуск
 
 ```bash
-docker build -t pet-health-tracker-frontend .
-docker run --rm --env-file ../version.txt -p 3000:80 pet-health-tracker-frontend
+PET_HEALTH_TRACKER_VERSION="$(cut -d= -f2 ../version.txt)"
+docker build \
+  --build-arg PET_HEALTH_TRACKER_VERSION="$PET_HEALTH_TRACKER_VERSION" \
+  -t "pet-health-tracker-frontend:$PET_HEALTH_TRACKER_VERSION" .
+docker run --rm \
+  -e PET_HEALTH_TRACKER_VERSION="$PET_HEALTH_TRACKER_VERSION" \
+  -p 3000:80 \
+  "pet-health-tracker-frontend:$PET_HEALTH_TRACKER_VERSION"
 ```
 
 После запуска модуль доступен по адресу `http://localhost:3000`.

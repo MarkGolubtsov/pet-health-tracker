@@ -2,7 +2,7 @@ import http from "node:http";
 
 const host = "0.0.0.0";
 const port = 8080;
-const projectVersion = process.env.version ?? "unknown";
+const projectVersion = process.env.PET_HEALTH_TRACKER_VERSION ?? "unknown";
 
 const sendJson = (response, statusCode, payload) => {
   response.writeHead(statusCode, {
