@@ -10,7 +10,10 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 COPY package.json ./
+COPY migrations ./migrations
+COPY seeds ./seeds
 COPY src ./src
+COPY storage ./storage
 
 EXPOSE 8080
 

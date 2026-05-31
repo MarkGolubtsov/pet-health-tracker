@@ -1,6 +1,72 @@
 name: pet-health-tracker
 
 services:
+  pet-health-tracker-postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${PET_HEALTH_TRACKER_POSTGRES_DB}
+      POSTGRES_USER: ${PET_HEALTH_TRACKER_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${PET_HEALTH_TRACKER_POSTGRES_PASSWORD}
+    ports:
+      - "${PET_HEALTH_TRACKER_HOST_BIND_ADDRESS}:${PET_HEALTH_TRACKER_POSTGRES_PORT}:5432"
+    volumes:
+      - pet-health-tracker-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\"",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - pet-health-tracker-app
+
+  pet-health-tracker-minio:
+    image: quay.io/minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${PET_HEALTH_TRACKER_FILE_STORAGE_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${PET_HEALTH_TRACKER_FILE_STORAGE_SECRET_KEY}
+    ports:
+      - "${PET_HEALTH_TRACKER_HOST_BIND_ADDRESS}:${PET_HEALTH_TRACKER_FILE_STORAGE_API_PORT}:9000"
+      - "${PET_HEALTH_TRACKER_HOST_BIND_ADDRESS}:${PET_HEALTH_TRACKER_FILE_STORAGE_CONSOLE_PORT}:9001"
+    volumes:
+      - pet-health-tracker-minio-data:/data
+    networks:
+      - pet-health-tracker-app
+
+  pet-health-tracker-minio-init:
+    image: quay.io/minio/mc:latest
+    depends_on:
+      - pet-health-tracker-minio
+    environment:
+      MINIO_ROOT_USER: ${PET_HEALTH_TRACKER_FILE_STORAGE_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${PET_HEALTH_TRACKER_FILE_STORAGE_SECRET_KEY}
+      PET_HEALTH_TRACKER_FILE_STORAGE_BUCKET: ${PET_HEALTH_TRACKER_FILE_STORAGE_BUCKET}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        until mc alias set local http://pet-health-tracker-minio:9000 "$${MINIO_ROOT_USER}" "$${MINIO_ROOT_PASSWORD}"; do
+          sleep 2
+        done
+        mc mb --ignore-existing "local/$${PET_HEALTH_TRACKER_FILE_STORAGE_BUCKET}"
+        mc anonymous set none "local/$${PET_HEALTH_TRACKER_FILE_STORAGE_BUCKET}"
+    networks:
+      - pet-health-tracker-app
+
+  pet-health-tracker-mailpit:
+    image: axllent/mailpit:latest
+    profiles:
+      - dev
+    ports:
+      - "${PET_HEALTH_TRACKER_HOST_BIND_ADDRESS}:${PET_HEALTH_TRACKER_MAILPIT_SMTP_PORT}:1025"
+      - "${PET_HEALTH_TRACKER_HOST_BIND_ADDRESS}:${PET_HEALTH_TRACKER_MAILPIT_WEB_PORT}:8025"
+    networks:
+      - pet-health-tracker-app
+
   pet-health-tracker-backend:
     image: pet-health-tracker-backend:${PET_HEALTH_TRACKER_VERSION}
     build:
@@ -9,8 +75,24 @@ services:
         PET_HEALTH_TRACKER_VERSION: ${PET_HEALTH_TRACKER_VERSION}
     environment:
       PET_HEALTH_TRACKER_VERSION: ${PET_HEALTH_TRACKER_VERSION}
+      PET_HEALTH_TRACKER_SESSION_SECRET: ${PET_HEALTH_TRACKER_SESSION_SECRET}
+      PET_HEALTH_TRACKER_DATABASE_URL: postgres://${PET_HEALTH_TRACKER_POSTGRES_USER}:${PET_HEALTH_TRACKER_POSTGRES_PASSWORD}@pet-health-tracker-postgres:5432/${PET_HEALTH_TRACKER_POSTGRES_DB}
+      PET_HEALTH_TRACKER_FILE_STORAGE_ENDPOINT: ${PET_HEALTH_TRACKER_FILE_STORAGE_ENDPOINT}
+      PET_HEALTH_TRACKER_FILE_STORAGE_BUCKET: ${PET_HEALTH_TRACKER_FILE_STORAGE_BUCKET}
+      PET_HEALTH_TRACKER_FILE_STORAGE_ACCESS_KEY: ${PET_HEALTH_TRACKER_FILE_STORAGE_ACCESS_KEY}
+      PET_HEALTH_TRACKER_FILE_STORAGE_SECRET_KEY: ${PET_HEALTH_TRACKER_FILE_STORAGE_SECRET_KEY}
+      PET_HEALTH_TRACKER_FILE_STORAGE_REGION: ${PET_HEALTH_TRACKER_FILE_STORAGE_REGION}
+      PET_HEALTH_TRACKER_FILE_STORAGE_FORCE_PATH_STYLE: "true"
+      PET_HEALTH_TRACKER_SMTP_HOST: ${PET_HEALTH_TRACKER_SMTP_HOST}
+      PET_HEALTH_TRACKER_SMTP_PORT: ${PET_HEALTH_TRACKER_SMTP_PORT}
+      PET_HEALTH_TRACKER_EMAIL_FROM: ${PET_HEALTH_TRACKER_EMAIL_FROM}
+    depends_on:
+      pet-health-tracker-postgres:
+        condition: service_healthy
+      pet-health-tracker-minio-init:
+        condition: service_completed_successfully
     ports:
-      - "${PET_HEALTH_TRACKER_HOST_BIND_ADDRESS:-127.0.0.1}:${PET_HEALTH_TRACKER_BACKEND_PORT:-8080}:8080"
+      - "${PET_HEALTH_TRACKER_HOST_BIND_ADDRESS}:${PET_HEALTH_TRACKER_BACKEND_PORT}:8080"
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/health || exit 1"]
       interval: 30s
@@ -29,7 +111,7 @@ services:
     environment:
       PET_HEALTH_TRACKER_VERSION: ${PET_HEALTH_TRACKER_VERSION}
     ports:
-      - "${PET_HEALTH_TRACKER_HOST_BIND_ADDRESS:-127.0.0.1}:${PET_HEALTH_TRACKER_FRONTEND_PORT:-3000}:80"
+      - "${PET_HEALTH_TRACKER_HOST_BIND_ADDRESS}:${PET_HEALTH_TRACKER_FRONTEND_PORT}:80"
     depends_on:
       pet-health-tracker-backend:
         condition: service_healthy
@@ -45,3 +127,7 @@ services:
 networks:
   pet-health-tracker-app:
     driver: bridge
+
+volumes:
+  pet-health-tracker-postgres-data:
+  pet-health-tracker-minio-data:

@@ -36,7 +36,7 @@ cut -d= -f2 version.txt
 
 ```bash
 cp .env.example .env
-./scripts/compose up --build
+./scripts/compose --profile dev up --build
 ```
 
 После запуска доступны следующие точки входа:
@@ -48,11 +48,18 @@ cp .env.example .env
    `http://localhost:${PET_HEALTH_TRACKER_BACKEND_PORT}/version`.
 4. Frontend version:
    `http://localhost:${PET_HEALTH_TRACKER_FRONTEND_PORT}/version`.
+5. MinIO API: `http://localhost:${PET_HEALTH_TRACKER_FILE_STORAGE_API_PORT}`.
+6. MinIO console:
+   `http://localhost:${PET_HEALTH_TRACKER_FILE_STORAGE_CONSOLE_PORT}`.
+7. Mailpit: `http://localhost:${PET_HEALTH_TRACKER_MAILPIT_WEB_PORT}`.
+
+Mailpit доступен только при запуске с профилем `dev`.
 
 ## Команды Compose
 
 Локальные команды запуска должны идти через `scripts/compose`.
 Прямой `docker compose` требует заранее задать `PET_HEALTH_TRACKER_VERSION`.
+Compose запускает runtime-модули и инфраструктуру локального окружения.
 
 Подготовить локальный `.env`:
 
@@ -63,13 +70,13 @@ cp .env.example .env
 Запустить все сервисы с пересборкой образов:
 
 ```bash
-./scripts/compose up --build
+./scripts/compose --profile dev up --build
 ```
 
 Запустить все сервисы в фоне:
 
 ```bash
-./scripts/compose up --build -d
+./scripts/compose --profile dev up --build -d
 ```
 
 Запустить только backend:
@@ -102,6 +109,16 @@ cp .env.example .env
 ./scripts/compose down
 ```
 
+Запустить production-like контур без Mailpit:
+
+```bash
+./scripts/compose up --build
+```
+
+В production MinIO остается частью compose-контура.
+Mailpit в production не запускается.
+SMTP-провайдер для production задается через `.env`.
+
 ## Docker Images
 
 Compose собирает локальные образы с tag из `version.txt`.
@@ -109,6 +126,13 @@ Compose собирает локальные образы с tag из `version.tx
 
 1. `pet-health-tracker-backend:0.0.0-SNAPSHOT`.
 2. `pet-health-tracker-frontend:0.0.0-SNAPSHOT`.
+
+Compose также использует внешние инфраструктурные образы:
+
+1. `postgres:16-alpine`.
+2. `quay.io/minio/minio:latest`.
+3. `quay.io/minio/mc:latest`.
+4. `axllent/mailpit:latest` используется только с профилем `dev`.
 
 ## Переменные
 
@@ -120,8 +144,26 @@ Healthcheck выполняется внутри контейнера через 
 1. `PET_HEALTH_TRACKER_HOST_BIND_ADDRESS` задает адрес публикации на хосте.
 2. `PET_HEALTH_TRACKER_FRONTEND_PORT` задает внешний порт frontend.
 3. `PET_HEALTH_TRACKER_BACKEND_PORT` задает внешний порт backend.
-4. `PET_HEALTH_TRACKER_VERSION` задается скриптом `scripts/compose`.
+4. `PET_HEALTH_TRACKER_SESSION_SECRET` задает секрет сессий.
+5. `PET_HEALTH_TRACKER_POSTGRES_PORT` задает внешний порт Postgres.
+6. `PET_HEALTH_TRACKER_POSTGRES_DB` задает имя локальной базы данных.
+7. `PET_HEALTH_TRACKER_POSTGRES_USER` задает пользователя локальной базы.
+8. `PET_HEALTH_TRACKER_POSTGRES_PASSWORD` задает пароль локальной базы.
+9. `PET_HEALTH_TRACKER_FILE_STORAGE_API_PORT` задает внешний порт MinIO API.
+10. `PET_HEALTH_TRACKER_FILE_STORAGE_CONSOLE_PORT` задает порт MinIO console.
+11. `PET_HEALTH_TRACKER_FILE_STORAGE_ENDPOINT` задает endpoint хранилища.
+12. `PET_HEALTH_TRACKER_FILE_STORAGE_BUCKET` задает bucket документов.
+13. `PET_HEALTH_TRACKER_FILE_STORAGE_ACCESS_KEY` задает access key MinIO.
+14. `PET_HEALTH_TRACKER_FILE_STORAGE_SECRET_KEY` задает secret key MinIO.
+15. `PET_HEALTH_TRACKER_FILE_STORAGE_REGION` задает регион хранилища.
+16. `PET_HEALTH_TRACKER_MAILPIT_SMTP_PORT` задает SMTP-порт Mailpit.
+17. `PET_HEALTH_TRACKER_MAILPIT_WEB_PORT` задает web-порт Mailpit.
+18. `PET_HEALTH_TRACKER_SMTP_HOST` задает SMTP host для backend.
+19. `PET_HEALTH_TRACKER_SMTP_PORT` задает SMTP port для backend.
+20. `PET_HEALTH_TRACKER_EMAIL_FROM` задает отправителя писем.
+21. `PET_HEALTH_TRACKER_VERSION` задается скриптом `scripts/compose`.
 
 ## Текущий объем
 
 Продуктовые требования находятся в `pet-health-tracker-docs/MVP.md`.
+Технологический стек находится в `pet-health-tracker-docs/STACK.md`.
