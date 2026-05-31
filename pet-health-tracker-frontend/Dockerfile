@@ -9,6 +9,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker-entrypoint.d /docker-entrypoint.d
 COPY public /usr/share/nginx/html
 
-RUN chmod +x /docker-entrypoint.d/40-write-version.sh
+RUN chmod +x /docker-entrypoint.d/write-version.sh
 
 EXPOSE 80
