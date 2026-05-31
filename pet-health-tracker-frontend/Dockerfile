@@ -9,6 +9,7 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker-entrypoint.d /docker-entrypoint.d
 COPY public /usr/share/nginx/html
 
+# nginx entrypoint runs executable scripts from /docker-entrypoint.d on startup.
 RUN chmod +x /docker-entrypoint.d/write-version.sh
 
 EXPOSE 80
