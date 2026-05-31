@@ -43,7 +43,14 @@ Backend работает с файлами через S3-compatible хранил
 1. MinIO входит в production compose-контур первой версии.
 2. MinIO должен использовать persistent volume.
 3. Доступ к MinIO API не должен быть публичным без необходимости.
-4. MinIO console не должна быть публичной без дополнительной защиты.
+4. MinIO console должна быть привязана к `127.0.0.1`.
 5. Access key и secret key должны отличаться от локальных значений.
 6. Bucket `lab-documents` должен оставаться приватным.
 7. Backup bucket-данных является обязательной операционной задачей.
+
+## Доступ к Console
+
+1. Production `.env` должен задавать `127.0.0.1` для console bind address.
+2. Console не должна публиковаться на `0.0.0.0`.
+3. Административный доступ идет через SSH tunnel или private network.
+4. Backend не использует MinIO console для работы с файлами.

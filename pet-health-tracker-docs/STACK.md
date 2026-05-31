@@ -115,6 +115,7 @@
 8. Production deploy может использовать тот же compose-контракт.
 9. Production deploy не включает profile `dev`.
 10. Production deploy включает MinIO.
+11. Infrastructure ports должны быть привязаны к loopback в production.
 
 ## Границы ответственности
 
